@@ -7,4 +7,3 @@ WORKDIR $APPLICATION_ROOT
 COPY . /app/
 
 RUN pip install -r requirements.txt
-

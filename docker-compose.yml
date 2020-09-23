@@ -5,9 +5,11 @@ services:
     ports:
       - "5432:5432"
     environment: 
+      POSTGRES_USER: postgres,
       POSTGRES_PASSWORD: password1234
     volumes:
       - db:/var/lib/postgresql/data
+
   django:
     build:
       context: .
@@ -17,8 +19,47 @@ services:
     command: bash -c "python mysite/manage.py runserver 0.0.0.0:8080"
     depends_on: 
       - postgresdb
+      - redis
     volumes:
       - ./:/app
 
+  redis:
+    image: "redis:alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - 'redisdata:/data'
+
+  queue-a:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - WORKER_QUEUE=queue_a
+      - WORKER_NAME=worker_A
+    command: bash -c "chmod +x entrypoint-worker.sh && ./entrypoint-worker.sh"
+    depends_on:
+      - django
+  queue-b:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - WORKER_QUEUE=queue_b
+      - WORKER_NAME=worker_B
+    command: bash -c "chmod +x entrypoint-worker.sh && ./entrypoint-worker.sh"
+    depends_on:
+      - django
+      
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    command: bash -c "chmod +x entrypoint-beat.sh && ./entrypoint-beat.sh"
+    depends_on:
+      - django
+  
+
 volumes:
   db:
+  redisdata:

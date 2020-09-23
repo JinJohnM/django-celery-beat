@@ -1,2 +1,5 @@
 Django
-psycopg2-binary
+psycopg2-binary #django <-- connect --> database
+celery
+django_celery_beat
+redis
