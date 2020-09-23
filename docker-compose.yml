@@ -2,8 +2,12 @@ version: '3'
 services:
   postgresdb:
     image: "postgres:latest"
+    ports:
+      - "5432:5432"
     environment: 
-      POSTGRES_PASSWORD: 1234
+      POSTGRES_PASSWORD: password1234
+    volumes:
+      - db:/var/lib/postgresql/data
   django:
     build:
       context: .
@@ -11,3 +15,10 @@ services:
     ports:
       - "8080:8080"
     command: bash -c "python mysite/manage.py runserver 0.0.0.0:8080"
+    depends_on: 
+      - postgresdb
+    volumes:
+      - ./:/app
+
+volumes:
+  db:
