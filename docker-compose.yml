@@ -5,7 +5,7 @@ services:
     ports:
       - "5432:5432"
     environment: 
-      POSTGRES_USER: postgres,
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password1234
     volumes:
       - db:/var/lib/postgresql/data
@@ -58,7 +58,15 @@ services:
     command: bash -c "chmod +x entrypoint-beat.sh && ./entrypoint-beat.sh"
     depends_on:
       - django
-  
+    
+  queue-monitor:
+    image: mher/flower
+    environment: 
+      QUEUE_MONITOR_USERNAME: prontotools
+      QUEUE_MONITOR_PASSWORD: 12345
+    command: flower --address=0.0.0.0 --port=5555 --broker=redis://redis:6379
+    ports:
+      - '5555:5555'
 
 volumes:
   db:
